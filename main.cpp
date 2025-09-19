@@ -14,3 +14,5 @@ struct Cell {
     int y;
 };
 
+class RandomCell {
+
