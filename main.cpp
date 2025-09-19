@@ -7,7 +7,6 @@
 #include <iomanip>
 #include <algorithm>
 #include <cstdint>
-using namespace std;
 
 struct Cell {
     int x;
@@ -36,5 +35,6 @@ private:
     std::mt19937 engine_;
     std::uniform_int_distribution<int> dist_;
 };
+
 
 
