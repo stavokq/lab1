@@ -20,7 +20,7 @@ public:
         : N_(N)
     {
         if (N_ <= 0) {
-            throw std::invalid_argument("RandomCell: N must be > 0");
+            throw std::invalid_argument("N must be > 0");
         }
         std::random_device rd;
         engine_.seed(rd());
@@ -36,4 +36,5 @@ private:
     std::mt19937 engine_;
     std::uniform_int_distribution<int> dist_;
 };
+
 
