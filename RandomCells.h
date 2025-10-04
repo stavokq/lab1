@@ -2,13 +2,13 @@
 #include "Cell.h"
 #include <random>
 
-class RandomCell {
+class RandomCells {
 public:
-    explicit RandomCell(int N);
+    explicit RandomCells(int boardSize);
     Cell operator()();
 
 private:
-    int N_;
+    int boardSize_;
     std::mt19937 engine_;
     std::uniform_int_distribution<int> dist_;
 };
