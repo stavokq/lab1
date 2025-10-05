@@ -1,5 +1,8 @@
-//Was compiled with CLion
-//K-27 Karimov Denis and Vakulenko Stanislav var 7
+/*
+Was compiled with CLion
+Variant: 7
+K-27, Karimov Denis and Vakulenko Stanislav
+*/
 #include <iostream>
 #include <fstream>
 #include <iomanip>
