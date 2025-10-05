@@ -2,14 +2,14 @@
 #include <vector>
 #include "Cell.h"
 
-class RandomCell; 
+class RandomCells; 
 
 class CellStats {
 public:
     explicit CellStats(int N);
 
     void add(Cell c);
-    void sample(RandomCell& rng, int M);
+    void sample(RandomCells& rng, int M);
 
     double meanMultiplicity() const;
     double medianMultiplicity() const;
