@@ -1,7 +1,7 @@
 #include "RandomCells.h"
 #include <stdexcept>
 
-RandomCells::RandomCells(int boardSize)
+RandomCells::RandomCells(const int boardSize)
     : boardSize_(boardSize)
 {
     if (boardSize_ <= 0) {
