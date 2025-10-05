@@ -2,15 +2,14 @@
 #include <vector>
 #include <string>
 #include "Cell.h"
-
-class RandomCell;
+#include "RandomCells.h"
 
 class CellStats {
 public:
     explicit CellStats(int N);
 
     void add(Cell c);
-    void sample(RandomCell& rng, int M);
+    void sample(RandomCells& rng, int M);
 
     double meanMultiplicity() const;
     double medianMultiplicity() const;
@@ -18,9 +17,6 @@ public:
     bool saveCountsCSV(const std::string& path) const;
     bool loadCountsCSV(const std::string& path);
     bool saveSummaryTXT(const std::string& path) const;
-
-    int size() const { return n; }
-    const std::vector<int>& raw() const { return counts; }
 
 private:
     int n;
