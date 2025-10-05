@@ -16,7 +16,7 @@ void CellStats::add(Cell c) {
     ++counts[idx]; 
 }
 
-void CellStats::sample(RandomCell& rng, int M) {
+void CellStats::sample(RandomCells& rng, int M) {
     for (int i = 0; i < M; ++i) {
         Cell c = rng();
         add(c);
