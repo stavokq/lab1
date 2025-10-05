@@ -9,14 +9,16 @@
 #include "RandomCells.h"
 #include "Stats.h"
 
+using namespace std;
+
 static void printRule(char ch = '-', int len = 72) {
-    for (int i = 0; i < len; ++i) std::cout << ch;
-    std::cout << '\n';
+    for (int i = 0; i < len; ++i) cout << ch;
+    cout << '\n';
 }
 
-static void ptitle(const std::string& t) {
+static void ptitle(const string& t) {
     printRule('=');
-    std::cout << t << '\n';
+    cout << t << '\n';
     printRule('=');
 }
 
@@ -24,22 +26,22 @@ static void demo_basic(int N, int M) {
     RandomCell rng(N);
     CellStats stats(N);
     stats.sample(rng, M);
-    std::cout << std::fixed << std::setprecision(6)
-              << stats.meanMultiplicity() << " "
-              << stats.medianMultiplicity() << "\n";
+    cout << fixed << setprecision(6)
+         << stats.meanMultiplicity() << " "
+         << stats.medianMultiplicity() << "\n";
     printRule();
 }
 
 static void test_randomness_operator(int N, int K) {
     RandomCell rng(N);
-    std::vector<int> counts(static_cast<std::size_t>(N) * static_cast<std::size_t>(N), 0);
+    vector<int> counts(static_cast<size_t>(N) * static_cast<size_t>(N), 0);
     for (int i = 0; i < K; ++i) {
         Cell c = rng();
         if (c.x < 0 || c.y < 0 || c.x >= N || c.y >= N) {
-            throw std::runtime_error("out of range");
+            throw runtime_error("out of range");
         }
         int idx = c.x * N + c.y;
-        ++counts[static_cast<std::size_t>(idx)];
+        ++counts[static_cast<size_t>(idx)];
     }
     int mn = counts[0], mx = counts[0];
     for (int i = 1; i < static_cast<int>(counts.size()); ++i) {
@@ -53,11 +55,11 @@ static void test_randomness_operator(int N, int K) {
         const double diff = static_cast<double>(v) - expected;
         chi2 += diff * diff / expected;
     }
-    std::cout << mn << " " << mx << " " << std::fixed << std::setprecision(3) << chi2 << "\n";
+    cout << mn << " " << mx << " " << fixed << setprecision(3) << chi2 << "\n";
     printRule();
 }
 
-static void experiment_vs_M(int N, const std::vector<int>& Ms) {
+static void experiment_vs_M(int N, const vector<int>& Ms) {
     for (int M : Ms) {
         RandomCell rng(N);
         CellStats stats(N);
@@ -65,15 +67,15 @@ static void experiment_vs_M(int N, const std::vector<int>& Ms) {
         const double mean = stats.meanMultiplicity();
         const double median = stats.medianMultiplicity();
         const double theor  = static_cast<double>(M) / (N * 1.0 * N);
-        std::cout << M << " "
-                  << std::fixed << std::setprecision(6) << mean << " "
-                  << std::fixed << std::setprecision(6) << theor << " "
-                  << std::fixed << std::setprecision(6) << median << "\n";
+        cout << M << " "
+             << fixed << setprecision(6) << mean << " "
+             << fixed << setprecision(6) << theor << " "
+             << fixed << setprecision(6) << median << "\n";
     }
     printRule();
 }
 
-static void experiment_vs_N(const std::vector<int>& Ns, int M) {
+static void experiment_vs_N(const vector<int>& Ns, int M) {
     for (int N : Ns) {
         RandomCell rng(N);
         CellStats stats(N);
@@ -81,10 +83,10 @@ static void experiment_vs_N(const std::vector<int>& Ns, int M) {
         const double mean  = stats.meanMultiplicity();
         const double theor = static_cast<double>(M) / (N * 1.0 * N);
         const double med   = stats.medianMultiplicity();
-        std::cout << N << " " << (N * N) << " "
-                  << std::fixed << std::setprecision(6) << mean << " "
-                  << std::fixed << std::setprecision(6) << theor << " "
-                  << std::fixed << std::setprecision(6) << med << "\n";
+        cout << N << " " << (N * N) << " "
+             << fixed << setprecision(6) << mean << " "
+             << fixed << setprecision(6) << theor << " "
+             << fixed << setprecision(6) << med << "\n";
     }
     printRule();
 }
@@ -94,38 +96,37 @@ int main() {
         try {
             RandomCell bad(0);
             (void)bad;
-        } catch (const std::invalid_argument& e) {
-            std::cout << "0\n";
+        } catch (const invalid_argument& e) {
+            cout << "0\n";
         }
         try {
             demo_basic(10, 10000);
-        } catch (const std::exception& e) {
-            std::cout << "1\n";
+        } catch (const exception& e) {
+            cout << "1\n";
         }
         try {
             test_randomness_operator(10, 50000);
-        } catch (const std::exception& e) {
-            std::cout << "2\n";
+        } catch (const exception& e) {
+            cout << "2\n";
         }
         try {
-            std::vector<int> Ms = {1000, 5000, 10000, 20000, 50000};
+            vector<int> Ms = {1000, 5000, 10000, 20000, 50000};
             experiment_vs_M(10, Ms);
-        } catch (const std::exception& e) {
-            std::cout << "3\n";
+        } catch (const exception& e) {
+            cout << "3\n";
         }
         try {
-            std::vector<int> Ns = {5, 10, 15, 20};
+            vector<int> Ns = {5, 10, 15, 20};
             experiment_vs_N(Ns, 20000);
-        } catch (const std::exception& e) {
-            std::cout << "4\n";
+        } catch (const exception& e) {
+            cout << "4\n";
         }
         return 0;
-    } catch (const std::exception& e) {
-        std::cout << "5\n";
+    } catch (const exception& e) {
+        cout << "5\n";
         return 1;
     } catch (...) {
-        std::cout << "6\n";
+        cout << "6\n";
         return 2;
     }
 }
-
