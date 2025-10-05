@@ -1,3 +1,4 @@
+//Was compiled with CLion
 #include <iostream>
 #include <fstream>
 #include <iomanip>
