@@ -1,6 +1,6 @@
 #include <iostream>
-#include <iomanip>
 #include <fstream>
+#include <iomanip>
 #include <vector>
 #include <stdexcept>
 #include <limits>
@@ -22,38 +22,54 @@ static bool readConfig(const string& path, int& N, int& M, int& K) {
 int main() {
     try {
         int N = 0, M = 0, K = 0;
-        if (!readConfig("config.txt", N, M, K)) { cout << "CFG_ERR\n"; return 1; }
-
-        try {
-            RandomCell bad(0);
-            (void)bad;
-            cout << "INVARG_ERR\n";
-        } catch (const invalid_argument&) {
-            cout << "INVARG_OK\n";
+        if (!readConfig("config.txt", N, M, K)) {
+            cout << "Error: failed to read config.txt (expected: N M K with N>0, M>=0, K>=0)\n";
+            return 1;
         }
 
-        RandomCell rng(N);
-        CellStats stats(N);
-        stats.sample(rng, M);
+        try {
+            RandomCells bad(0);
+            cout << "Error: RandomCells(0) did not throw invalid_argument\n";
+            return 1;
+        } catch (const invalid_argument&) {}
 
-        if (!stats.saveCountsCSV("counts.csv")) { cout << "SAVE_COUNTS_ERR\n"; return 2; }
-        if (!stats.saveSummaryTXT("summary.txt")) { cout << "SAVE_SUMMARY_ERR\n"; return 3; }
+        RandomCells rng(N);
+        CellStats stats(N);
+
+        try {
+            stats.sample(rng, M);
+        } catch (const exception& e) {
+            cout << string("Error: sampling failed: ") + e.what() + "\n";
+            return 1;
+        }
+
+        if (!stats.saveCountsCSV("counts.csv")) {
+            cout << "Error: failed to write counts.csv\n";
+            return 1;
+        }
+        if (!stats.saveSummaryTXT("summary.txt")) {
+            cout << "Error: failed to write summary.txt\n";
+            return 1;
+        }
 
         CellStats stats2(1);
-        if (!stats2.loadCountsCSV("counts.csv")) { cout << "LOAD_COUNTS_ERR\n"; return 4; }
+        if (!stats2.loadCountsCSV("counts.csv")) {
+            cout << "Error: failed to read back counts.csv\n";
+            return 1;
+        }
 
         {
             ofstream out("chi2.txt", ios::out | ios::trunc);
-            if (!out.is_open() || !out.good()) { cout << "OPEN_CHI2_ERR\n"; return 5; }
+            if (!out.is_open() || !out.good()) { cout << "Error: cannot open chi2.txt for writing\n"; return 1; }
             out.close();
-            if (out.fail()) { cout << "CLOSE_CHI2_ERR\n"; return 6; }
+            if (out.fail()) { cout << "Error: cannot close chi2.txt after truncate\n"; return 1; }
         }
 
         {
             vector<int> counts(static_cast<size_t>(N) * static_cast<size_t>(N), 0);
             for (int i = 0; i < K; ++i) {
                 Cell c = rng();
-                if (c.x < 0 || c.y < 0 || c.x >= N || c.y >= N) { cout << "RANGE_ERR\n"; return 7; }
+                if (c.x < 0 || c.y < 0 || c.x >= N || c.y >= N) { cout << "Error: out-of-range cell from RNG\n"; return 1; }
                 int idx = c.x * N + c.y;
                 ++counts[static_cast<size_t>(idx)];
             }
@@ -70,46 +86,48 @@ int main() {
                 chi2 += diff * diff / expected;
             }
             ofstream out("chi2.txt", ios::out | ios::app);
-            if (!out.is_open() || !out.good()) { cout << "OPEN_CHI2_ERR\n"; return 8; }
+            if (!out.is_open() || !out.good()) { cout << "Error: cannot open chi2.txt for append\n"; return 1; }
             out << fixed << setprecision(6) << mn << " " << mx << " " << chi2 << "\n";
-            if (!out.good()) { cout << "WRITE_CHI2_ERR\n"; return 9; }
+            if (!out.good()) { cout << "Error: failed to write to chi2.txt\n"; return 1; }
             out.flush();
-            if (!out.good()) { cout << "FLUSH_CHI2_ERR\n"; return 10; }
+            if (!out.good()) { cout << "Error: flush failed for chi2.txt\n"; return 1; }
             out.close();
-            if (out.fail()) { cout << "CLOSE_CHI2_ERR\n"; return 11; }
+            if (out.fail()) { cout << "Error: cannot close chi2.txt after append\n"; return 1; }
 
             ifstream in("chi2.txt");
-            if (!in.is_open() || !in.good()) { cout << "READ_CHI2_ERR\n"; return 12; }
+            if (!in.is_open() || !in.good()) { cout << "Error: cannot open chi2.txt for reading\n"; return 1; }
             string last, line;
             while (getline(in, line)) last = line;
             in.close();
-            if (in.fail()) { cout << "READ_CHI2_CLOSE_ERR\n"; return 13; }
-            if (last.empty()) { cout << "READ_CHI2_EMPTY\n"; return 14; }
+            if (in.fail()) { cout << "Error: cannot close chi2.txt after reading\n"; return 1; }
+            if (last.empty()) { cout << "Error: chi2.txt is empty after write\n"; return 1; }
         }
 
         {
             ofstream out("mean_median.txt", ios::out | ios::trunc);
-            if (!out.is_open() || !out.good()) { cout << "OPEN_MM_ERR\n"; return 15; }
+            if (!out.is_open() || !out.good()) { cout << "Error: cannot open mean_median.txt for writing\n"; return 1; }
             out << fixed << setprecision(6)
                 << stats.meanMultiplicity() << " " << stats.medianMultiplicity() << "\n";
-            if (!out.good()) { cout << "WRITE_MM_ERR\n"; return 16; }
+            if (!out.good()) { cout << "Error: failed to write to mean_median.txt\n"; return 1; }
             out.flush();
-            if (!out.good()) { cout << "FLUSH_MM_ERR\n"; return 17; }
+            if (!out.good()) { cout << "Error: flush failed for mean_median.txt\n"; return 1; }
             out.close();
-            if (out.fail()) { cout << "CLOSE_MM_ERR\n"; return 18; }
+            if (out.fail()) { cout << "Error: cannot close mean_median.txt\n"; return 1; }
 
             ifstream in("mean_median.txt");
-            if (!in.is_open() || !in.good()) { cout << "READ_MM_ERR\n"; return 19; }
+            if (!in.is_open() || !in.good()) { cout << "Error: cannot open mean_median.txt for reading\n"; return 1; }
             double a = 0.0, b = 0.0;
-            if (!(in >> a >> b)) { cout << "PARSE_MM_ERR\n"; return 20; }
+            if (!(in >> a >> b)) { cout << "Error: failed to parse mean_median.txt\n"; return 1; }
             in.close();
-            if (in.fail()) { cout << "READ_MM_CLOSE_ERR\n"; return 21; }
+            if (in.fail()) { cout << "Error: cannot close mean_median.txt after reading\n"; return 1; }
         }
 
-        cout << "OK\n";
         return 0;
+    } catch (const exception& e) {
+        cout << string("Unhandled exception: ") + e.what() + "\n";
+        return 1;
     } catch (...) {
-        cout << "FATAL\n";
-        return 99;
+        cout << "Unhandled unknown error\n";
+        return 1;
     }
 }
